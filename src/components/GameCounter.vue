@@ -1,4 +1,18 @@
-<script setup></script>
+<script setup>
+const { minNumber, maxNumber } = defineProps({
+  minNumber: {
+    type: [Number, String],
+    required: true,
+  },
+  maxNumber: {
+    type: [Number, String],
+    required: true,
+  },
+})
+
+console.log(minNumber)
+console.log(maxNumber)
+</script>
 
 <template>
   <div class="counter-game">
