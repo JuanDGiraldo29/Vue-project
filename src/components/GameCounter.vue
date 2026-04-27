@@ -1,26 +1,74 @@
 <script setup>
+import JSConfetti from 'js-confetti'
+import { ref, watch, computed } from 'vue'
+import { getRandomNumbers } from '../utils/randomNumber'
+
 const { minNumber, maxNumber } = defineProps({
   minNumber: {
     type: [Number, String],
     required: true,
   },
   maxNumber: {
-    type: [Number, String],
+    type: Number,
     required: true,
+  },
+  example: {
+    type: Object,
+    default: () => ({
+      name: 'Enrique',
+    }),
   },
 })
 
-console.log(minNumber)
-console.log(maxNumber)
+const { initialRandomNumber, numberToGuess } = getRandomNumbers({ maxNumber, minNumber })
+
+const jsConfetti = new JSConfetti()
+
+const win = ref(false)
+
+const counter = ref(initialRandomNumber)
+const isMayor = ref(false)
+const isMenor = ref(false)
+
+const increment = () => {
+  if (maxNumber === counter.value) return
+  counter.value++
+}
+
+const decrement = () => {
+  if (counter.value === 0) return
+  counter.value--
+}
+
+watch(counter, () => {
+  if (numberToGuess === counter.value) {
+    jsConfetti.addConfetti()
+    win.value = true
+    isMayor.value = false
+    isMenor.value = false
+  } else if (counter.value < numberToGuess) {
+    isMayor.value = true
+  } else if (counter.value > numberToGuess) {
+    isMenor.value = true
+  }
+})
+
+const styleRed = computed(() => {
+  return win.value ? 'background: red;' : ''
+})
 </script>
 
 <template>
   <div class="counter-game">
-    <span class="number">0</span>
+    <span class="number">{{ counter }}</span>
     <div class="button-group">
-      <button>-</button>
-      <button>+</button>
+      <button :disabled="win" :style="styleRed" @click="decrement">-</button>
+      <button :disabled="win" :style="styleRed" @click="increment">+</button>
     </div>
+
+    <p v-show="isMayor">El numero es mayor</p>
+    <p v-show="isMenor">El numero es menor</p>
+    <p v-show="win">has ganado</p>
   </div>
 </template>
 
